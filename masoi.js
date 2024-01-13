@@ -1,6 +1,5 @@
-import { existsSync, writeFileSync } from "fs"
-import GameManager from "../cache/masoi/GameManager.js"
-import MasoiGame from "../cache/masoi/index.js"
+import { existsSync, unlinkSync, writeFileSync } from "fs"
+import { unpack } from "node-unar";
 const config = {
   name: "masoi",
   version: "1.0.0",
@@ -11,8 +10,11 @@ const config = {
   usage: "",
   cooldowns: 5
 };
-const masoiGameListenDir = process.cwd() + "/plugins/onMessage/masoiGameListen.js"
-const masoiGameListen = `export default function ({ message }) {
+
+function onLoad() {
+  const masoiGamePath = process.cwd() + "/plugins/commands/cache/masoi"
+  const masoiGameListenDir = process.cwd() + "/plugins/onMessage/masoiGameListen.js"
+  const masoiGameListen = `export default function ({ message }) {
   if (!global.gameManager || !global.gameManager.items.some(i => i.name == "Ma Sói")) return
   for (const game of global.gameManager.items) {
     if (!game.participants) continue
@@ -21,17 +23,44 @@ const masoiGameListen = `export default function ({ message }) {
     }
   }
 }`
-try {
-  if (!existsSync(masoiGameListenDir)) {
-    writeFileSync(masoiGameListenDir, masoiGameListen)
-    global.restart()
+  if (!existsSync(masoiGameListenDir)) { writeFileSync(masoiGameListenDir, masoiGameListen, "utf8") }
+  if (!existsSync(masoiGamePath + "load.js")) {
+    writeFileSync(masoiGamePath + "load.js", `import GameManager from "./masoi/GameManager.js";
+    import MasoiGame from "./masoi/index.js";
+    export default {
+        newAll() {
+            global.gameManager = new GameManager({ masoi: MasoiGame })
+        },
+        addGameMasoi() {
+            global.gameManager.import({ masoi: MasoiGame })
+        }
+    }`)
   }
-  global.gameManager = new GameManager({ masoi: MasoiGame })
-  global.Users = global.controllers.Users
+  if (!existsSync(masoiGamePath)) {
+    if (existsSync(masoiGamePath + ".zip")) unlinkSync(masoiGamePath + ".zip");
+    // link du phong: https://github.com/Citnut/xaviafb/raw/main/masoi.zip
+    global.downloadFile(masoiGamePath + ".zip", "https://drive.google.com/u/0/uc?id=1uDCBKeKP5zp_FiNT-TTuZ1PYnJf96ZNk&export=download" + ".zip").then(p => {
+      console.log("\x1b[36m[⬢ GAME]\x1b[0m Masoi download finished > unzip masoi.zip")
+      unpack(p, process.cwd() + "/plugins/commands/cache")
+        .progress((files) => {
+          console.log('\x1b[36m[⬢ Files]\x1b[0m', files);
+        })
+        .then((results) => {
+          console.log('\x1b[36m[⬢ Archive type]\x1b[0m', results.type);
+          console.log('\x1b[36m[⬢ Archive files]\x1b[0m', results.files);
+          console.log('\x1b[36m[⬢ Archive output directory]\x1b[0m', results.directory);
+        })
+      console.log("\x1b[36m[⬢ GAME]\x1b[0m Masoi installation is complete > restarting...")
+    }).catch(console.log).finally(() => {
+      global.restart()
+    })
+  }
 }
-catch { console.log }
 
-const onCall = ({ message, args }) => {
+const onCall = async ({ message, args }) => {
+  if (!global.Users) global.Users = global.controllers.Users;
+  if (!global.gameManager) { (await import("../cache/masoiload.js")).default.newAll() }
+  else if (!global.gameManager.isValid("Ma Sói")) (await import("../cache/masoiload.js")).default.addGameMasoi()
   global.gameManager.run(config.name, {
     masterID: message.senderID,
     threadID: message.threadID,
@@ -42,5 +71,6 @@ const onCall = ({ message, args }) => {
 }
 export default {
   config,
+  onLoad,
   onCall
 }
