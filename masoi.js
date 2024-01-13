@@ -27,8 +27,8 @@ function onLoad() {
   if (!existsSync(citnutpath)) global.createDir(citnutpath)
   if (!existsSync(masoiGameListenDir)) { writeFileSync(masoiGameListenDir, masoiGameListen, "utf8") }
   if (!existsSync(citnutpath + "/masoiLoad.js")) {
-    writeFileSync(citnutpath + "/masoiLoad.js", `import GameManager from "./masoi/GameManager.js";
-import MasoiGame from "./masoi/index.js";
+    writeFileSync(citnutpath + "/masoiLoad.js", `import GameManager from "../masoi/GameManager.js";
+import MasoiGame from "../masoi/index.js";
 export default {
   newAll() {
     global.gameManager = new GameManager({ masoi: MasoiGame })
