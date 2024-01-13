@@ -5,19 +5,25 @@ const config = {
     permissions: [1, 2],
     credits: "CatalizCS, convert to Xavia by Citnut",
     description: "Tùy biến luật cho từng group",
+    // commandCategory: "Box Chat",
     usage: "[add/remove/all] [content/ID]",
-    cooldowns: 5
+    cooldowns: 5,
 }
-//onLoad
-import { existsSync, writeFileSync, readFileSync } from "fs"
-const pathData = process.cwd() + "/plugins/commands/cache/rulessssss.json"
-if (!existsSync(pathData)) writeFileSync(pathData, "[]", "utf-8");
+import { existsSync, writeFileSync, readFileSync, mkdirSync } from "fs"
+function onLoad() {
+    const pathData = global.pluginsPath + "/commands/cache/rules"
+    const ruleFile = pathData + "/data.json"
+    if (!existsSync(pathData)) {
+        mkdirSync(pathData);
+        writeFileSync(ruleFile, "[]", "utf-8");
+    }
+}
 
 const onCall = ({ message, args, userPermissions }) => {
     const { threadID } = message;
 
     const content = (args.slice(1, args.length)).join(" ");
-    let dataJson = JSON.parse(readFileSync(pathData, "utf-8"));
+    let dataJson = JSON.parse(readFileSync(ruleFile, "utf-8"));
     let thisThread = dataJson.find(item => item.threadID == threadID) || { threadID, listRule: [] };
 
     switch (args[0]) {
@@ -31,7 +37,7 @@ const onCall = ({ message, args, userPermissions }) => {
             else {
                 thisThread.listRule.push(content);
             }
-            writeFileSync(pathData, JSON.stringify(dataJson, null, 4), "utf-8");
+            writeFileSync(ruleFile, JSON.stringify(dataJson, null, 4), "utf-8");
             message.reply('[ 𝗥𝗨𝗟𝗘 ] - Đã thêm luật mới cho nhóm thành công!');
             break;
         }
@@ -72,10 +78,11 @@ const onCall = ({ message, args, userPermissions }) => {
     }
 
     if (!dataJson.some(item => item.threadID == threadID)) dataJson.push(thisThread);
-    return writeFileSync(pathData, JSON.stringify(dataJson, null, 4), "utf-8");
+    return writeFileSync(ruleFile, JSON.stringify(dataJson, null, 4), "utf-8");
 }
 
 export default {
     config,
+    onLoad,
     onCall
 }

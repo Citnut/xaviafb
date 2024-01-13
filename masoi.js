@@ -23,18 +23,20 @@ function onLoad() {
     }
   }
 }`
+  const citnutpath = global.pluginsPath + "/commands/cache/citnut"
+  if (!existsSync(citnutpath)) global.createDir(citnutpath)
   if (!existsSync(masoiGameListenDir)) { writeFileSync(masoiGameListenDir, masoiGameListen, "utf8") }
-  if (!existsSync(masoiGamePath + "load.js")) {
-    writeFileSync(masoiGamePath + "load.js", `import GameManager from "./masoi/GameManager.js";
-    import MasoiGame from "./masoi/index.js";
-    export default {
-        newAll() {
-            global.gameManager = new GameManager({ masoi: MasoiGame })
-        },
-        addGameMasoi() {
-            global.gameManager.import({ masoi: MasoiGame })
-        }
-    }`)
+  if (!existsSync(citnutpath + "/masoiLoad.js")) {
+    writeFileSync(citnutpath + "/masoiLoad.js", `import GameManager from "./masoi/GameManager.js";
+import MasoiGame from "./masoi/index.js";
+export default {
+  newAll() {
+    global.gameManager = new GameManager({ masoi: MasoiGame })
+  },
+  addGameMasoi() {
+    global.gameManager.import({ masoi: MasoiGame })
+  }
+}`)
   }
   if (!existsSync(masoiGamePath)) {
     if (existsSync(masoiGamePath + ".zip")) unlinkSync(masoiGamePath + ".zip");

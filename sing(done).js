@@ -26,7 +26,7 @@ async function downloadMusicFromYoutube(link, path) {
       .on("error", reject)
   });
 }
-const dirname = process.cwd() + "/plugins/commands/cache/sing"
+const dirname = global.pluginsPath + "/commands/cache/sing"
 if (!existsSync(dirname)) mkdirSync(dirname)
 async function handleReply({ message, eventData }) {
   try {
@@ -35,7 +35,7 @@ async function handleReply({ message, eventData }) {
     const data = await downloadMusicFromYoutube('https://www.youtube.com/watch?v=' + msgRl.link[message.body - 1], path);
     if (statSync(path).size > 26214400) return message.reply('𝗞𝗵𝗼̂𝗻𝗴 𝘁𝗵𝗲̂̉ 𝗴𝘂̛̉𝗶 𝗳𝗶𝗹𝗲. 𝗩𝘂𝗶 𝗹𝗼̀𝗻𝗴 𝗰𝗵𝗼̣𝗻 𝗯𝗮̀𝗶 𝗵𝗮́𝘁 𝗸𝗵𝗮́𝗰!').then(() => unlinkSync(path));
     return message.reply({
-      body: `🎶=====「 𝐌𝐔𝐒𝐈𝐂 」=====️🎶\n━━━━━━━━━━━━━━\n📌 → 𝗧𝗶𝘁𝗹𝗲: ${data.title} ( ${convertHMS(data.dur)} )\n📆 → 𝗡𝗴𝗮̀𝘆 𝘁𝗮̉𝗶 𝗹𝗲̂𝗻: ${data.uploadDate}\n📻 → 𝗖𝗵𝗮𝗻𝗻𝗲𝗹: ${data.author} ( ${data.sub} )\n👀 → 𝗟𝘂̛𝗼̛̣𝘁 𝘅𝗲𝗺: ${data.viewCount} 𝘃𝗶𝗲𝘄\n❤️ → 𝗟𝘂̛𝗼̛̣𝘁 𝘁𝗵𝗶́𝗰𝗵: ${data.likes}\n🔗 →  𝗟𝗶𝗻𝗸 𝘁𝗮̉𝗶: https://www.y2meta.com/vi/youtube/${msgRl.link[message.body - 1]}\n⏳ → 𝗧𝗵𝗼̛̀𝗶 𝗴𝗶𝗮𝗻 𝘅𝘂̛̉ 𝗹𝘆́: ${Math.floor((Date.now() - data.timestart) / 1000)} 𝗴𝗶𝗮̂𝘆\n======= [ ${moment.tz("Asia/Ho_Chi_Minh").format("HH:mm:ss")} ] =======`,
+      body: `🎶=====「 𝐌𝐔𝐒𝐈𝐂 」=====️🎶\n━━━━━━━━━━━━━━\n📌 → 𝗧𝗶𝘁𝗹𝗲: ${data.title} ( ${convertHMS(data.dur)} )\n📆 → 𝗡𝗴𝗮̀𝘆 𝘁𝗮̉𝗶 𝗹𝗲̂𝗻: ${data.uploadDate}\n📻 → 𝗖𝗵𝗮𝗻𝗻𝗲𝗹: ${data.author} ( ${data.sub} )\n👀 → 𝗟𝘂̛𝗼̛̣𝘁 𝘅𝗲𝗺: ${data.viewCount} 𝘃𝗶𝗲𝘄\n❤️ → 𝗟𝘂̛𝗼̛̣𝘁 𝘁𝗵𝗶́𝗰𝗵: ${data.likes}\n🔗 →  𝗟𝗶𝗻𝗸 𝘁𝗮̉𝗶: https://www.y2meta[.]com/vi/youtube/${msgRl.link[message.body - 1]}\n⏳ → 𝗧𝗵𝗼̛̀𝗶 𝗴𝗶𝗮𝗻 𝘅𝘂̛̉ 𝗹𝘆́: ${Math.floor((Date.now() - data.timestart) / 1000)} 𝗴𝗶𝗮̂𝘆\n======= [ ${moment.tz("Asia/Ho_Chi_Minh").format("HH:mm:ss")} ] =======`,
       attachment: createReadStream(path)
     }).then(() => {
       unlinkSync(path);

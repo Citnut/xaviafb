@@ -7,12 +7,7 @@ const config = {
 	permissions: [2],
 	credits: "Mirai Team, convert to Xavia by Citnut",
 	description: "Xem thông tin phần cứng mà bot đang sử dụng",
-	// commandCategory: "BOT VIP",
 	cooldowns: 5,
-	// dependencies: {
-	// 	"systeminformation": "",
-	// 	"pidusage": ""
-	// }
 };
 function byte2mb(bytes) {
 	const units = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
@@ -23,21 +18,20 @@ function byte2mb(bytes) {
 
 const onCall = async function ({ message }) {
 	try {
-		const timeStart = Date.now()
 		const pidusage = await pidu(process.pid)
-		var { manufacturer, brand, speedMax, physicalCores, cores } = await cpu();
-		var { main: mainTemp } = await cpuTemperature();
-		var { currentLoad: load } = await currentLoad();
-		var { uptime } = time();
-		var diskInfo = await diskLayout();
-		var memInfo = await memLayout();
-		var { total: totalMem, available: availableMem } = await mem();
-		var { platform: OSPlatform, build: OSBuild } = await osInfo();;
-		var disk = [], i = 1;
+		let { manufacturer, brand, speedMax, physicalCores, cores } = await cpu();
+		let { main: mainTemp } = await cpuTemperature();
+		let { currentLoad: load } = await currentLoad();
+		let { uptime } = time();
+		let diskInfo = await diskLayout();
+		let memInfo = await memLayout();
+		let { total: totalMem, available: availableMem } = await mem();
+		let { platform: OSPlatform, build: OSBuild } = await osInfo();;
+		let disk = [], i = 1;
 
-		var hours = Math.floor(uptime / (60 * 60));
-		var minutes = Math.floor((uptime % (60 * 60)) / 60);
-		var seconds = Math.floor(uptime % 60);
+		let hours = Math.floor(uptime / (60 * 60));
+		let minutes = Math.floor((uptime % (60 * 60)) / 60);
+		let seconds = Math.floor(uptime % 60);
 		if (hours < 10) hours = "0" + hours;
 		if (minutes < 10) minutes = "0" + minutes;
 		if (seconds < 10) seconds = "0" + seconds;
@@ -51,7 +45,7 @@ const onCall = async function ({ message }) {
 				"𝐓𝐞𝐦𝐩𝐞𝐫𝐚𝐭𝐮𝐫𝐞: " + singleDisk.temperature + "°C"
 			)
 		}
-
+		const timeStart = Date.now()
 		return message.send(
 			"====== 𝐒𝐲𝐬𝐭𝐞𝐦 𝐈𝐧𝐟𝐨 ======\n" +
 			"==== 「 𝐂𝐏𝐔 」 ====\n" +

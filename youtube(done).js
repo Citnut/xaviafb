@@ -4,11 +4,11 @@ const config = {
     credits: 'DungUwU, convert to Xavia by Citnut',
     description: 'Phát nhạc hoặc video thông qua link YouTube hoặc từ khoá tìm kiếm',
     // commandCategory: 'Tiện ích',
-    usage: 'ytb < keyword/url >',
+    usage: '< keyword/url >',
     cooldowns: 5
 };
 const key = process.env.YTB_API_KEY || "AIzaSyBNqRSYmQ9D1WWIa186k8nSvo5mr2Rvk5M";
-import * as fs from "fs";
+import { existsSync, mkdirSync, createWriteStream, createReadStream, unlinkSync, statSync } from "fs";
 import request from "request";
 import axios from "axios";
 import ytdl from "ytdl-core";
@@ -17,10 +17,10 @@ import ffmpegPath from "ffmpeg-static";
 ffmpeg.setFfmpegPath(ffmpegPath);
 const dirname = process.cwd() + "/plugins/commands/cache"
 const dirMaterial = dirname + `/youtube/`;
-if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
-if (!fs.existsSync(dirMaterial + "ytb.jpeg")) request("https://i.imgur.com/CqgfBW8.jpeg").pipe(fs.createWriteStream(dirMaterial + "ytb.jpeg"));
-const { createWriteStream, createReadStream, unlinkSync, existsSync, statSync } = fs;
-
+function onLoad() {
+    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(dirMaterial + "ytb.jpeg")) request("https://i.imgur.com/CqgfBW8.jpeg").pipe(createWriteStream(dirMaterial + "ytb.jpeg"));
+}
 const downloadMedia = async (videoID, type, senderID) => {
     const filePath = `${dirMaterial}${Date.now()}${senderID}.${(type == 'video') ? 'mp4' : 'm4a'}`;
     const errObj = {
@@ -191,5 +191,6 @@ const prettyTime = (time) => {
 }
 export default {
     config,
+    onLoad,
     onCall
 }
