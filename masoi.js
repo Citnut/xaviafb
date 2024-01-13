@@ -12,8 +12,8 @@ const config = {
 };
 
 function onLoad() {
-  const masoiGamePath = process.cwd() + "/plugins/commands/cache/masoi"
-  const masoiGameListenDir = process.cwd() + "/plugins/onMessage/masoiGameListen.js"
+  const masoiGamePath = global.mainPath + "/plugins/commands/cache/masoi"
+  const masoiGameListenDir = global.mainPath + "/plugins/onMessage/masoiGameListen.js"
   const masoiGameListen = `export default function ({ message }) {
   if (!global.gameManager || !global.gameManager.items.some(i => i.name == "Ma Sói")) return
   for (const game of global.gameManager.items) {
@@ -43,7 +43,7 @@ export default {
     // link du phong: https://github.com/Citnut/xaviafb/raw/main/masoi.zip
     global.downloadFile(masoiGamePath + ".zip", "https://drive.google.com/u/0/uc?id=1uDCBKeKP5zp_FiNT-TTuZ1PYnJf96ZNk&export=download" + ".zip").then(p => {
       console.log("\x1b[36m[⬢ GAME]\x1b[0m Masoi download finished > unzip masoi.zip")
-      unpack(p, process.cwd() + "/plugins/commands/cache")
+      unpack(p, global.pluginsPath + "/commands/cache")
         .progress((files) => {
           console.log('\x1b[36m[⬢ Files]\x1b[0m', files);
         })
@@ -61,8 +61,8 @@ export default {
 
 const onCall = async ({ message, args }) => {
   if (!global.Users) global.Users = global.controllers.Users;
-  if (!global.gameManager) { (await import("../cache/masoiload.js")).default.newAll() }
-  else if (!global.gameManager.isValid("Ma Sói")) (await import("../cache/masoiload.js")).default.addGameMasoi()
+  if (!global.gameManager) { (await import("../cache/citnut/masoiLoad.js")).default.newAll() }
+  else if (!global.gameManager.isValid("Ma Sói")) (await import("../cache/citnut/masoiLoad.js")).default.addGameMasoi()
   global.gameManager.run(config.name, {
     masterID: message.senderID,
     threadID: message.threadID,
