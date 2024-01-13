@@ -62,7 +62,7 @@ export default {
 const onCall = async ({ message, args }) => {
   if (!global.Users) global.Users = global.controllers.Users;
   if (!global.gameManager) { (await import("../cache/citnut/masoiLoad.js")).default.newAll() }
-  else if (!global.gameManager.isValid("Ma Sói")) (await import("../cache/citnut/masoiLoad.js")).default.addGameMasoi()
+  else if (!global.gameManager.isValid("masoi")) (await import("../cache/citnut/masoiLoad.js")).default.addGameMasoi()
   global.gameManager.run(config.name, {
     masterID: message.senderID,
     threadID: message.threadID,
