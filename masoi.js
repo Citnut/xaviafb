@@ -11,10 +11,10 @@ const config = {
   cooldowns: 5
 };
 
-var masoiGamePath = "";
+var citnutpath = "";
 
 function onLoad() {
-  masoiGamePath = global.mainPath + "/core/var/assets/masoi"
+  const masoiGamePath = global.mainPath + "/core/var/assets/masoi"
   const masoiGameListenDir = global.mainPath + "/plugins/onMessage/masoiGameListen.js"
   const masoiGameListen = `export default function ({ message }) {
   if (!global.gameManager || !global.gameManager.items.some(i => i.name == "Ma Sói")) return;
@@ -25,7 +25,7 @@ function onLoad() {
     }
   }
 }`
-  const citnutpath = global.mainPath + "/core/var/assets/citnut"
+  citnutpath = global.mainPath + "/core/var/assets/citnut"
   if (!existsSync(citnutpath)) global.createDir(citnutpath)
   if (!existsSync(masoiGameListenDir)) { writeFileSync(masoiGameListenDir, masoiGameListen, "utf8") }
   if (!existsSync(citnutpath + "/masoiLoad.js")) {
@@ -63,8 +63,8 @@ export default {
 
 const onCall = async ({ message, args }) => {
   if (!global.Users) global.Users = global.controllers.Users;
-  if (!global.gameManager) { (await import(masoiGamePath+"/masoiLoad.js")).default.newAll() }
-  else if (!global.gameManager.isValid("masoi")) (await import(masoiGamePath+"/masoiLoad.js")).default.addGameMasoi()
+  if (!global.gameManager) { (await import(citnutpath+"/masoiLoad.js")).default.newAll() }
+  else if (!global.gameManager.isValid("masoi")) (await import(citnutpath+"/masoiLoad.js")).default.addGameMasoi()
   global.gameManager.run(config.name, {
     masterID: message.senderID,
     threadID: message.threadID,
