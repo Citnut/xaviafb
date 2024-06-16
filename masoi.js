@@ -11,8 +11,6 @@ const config = {
   cooldowns: 5
 };
 
-var citnutpath = "";
-
 function onLoad() {
   const masoiGamePath = global.mainPath + "/core/var/assets/masoi"
   const masoiGameListenDir = global.mainPath + "/plugins/onMessage/masoiGameListen.js"
@@ -25,7 +23,7 @@ function onLoad() {
     }
   }
 }`
-  citnutpath = global.mainPath + "/core/var/assets/citnut"
+  const citnutpath = global.mainPath + "/core/var/assets/citnut"
   if (!existsSync(citnutpath)) global.createDir(citnutpath)
   if (!existsSync(masoiGameListenDir)) { writeFileSync(masoiGameListenDir, masoiGameListen, "utf8") }
   if (!existsSync(citnutpath + "/masoiLoad.js")) {
@@ -63,8 +61,8 @@ export default {
 
 const onCall = async ({ message, args }) => {
   if (!global.Users) global.Users = global.controllers.Users;
-  if (!global.gameManager) { (await import(citnutpath+"/masoiLoad.js")).default.newAll() }
-  else if (!global.gameManager.isValid("masoi")) (await import(citnutpath+"/masoiLoad.js")).default.addGameMasoi()
+  if (!global.gameManager) { (await import("../../../core/var/assets/cutnut/masoiLoad.js")).default.newAll() }
+  else if (!global.gameManager.isValid("masoi")) (await import("../../../core/var/assets/citnut/masoiLoad.js")).default.addGameMasoi()
   global.gameManager.run(config.name, {
     masterID: message.senderID,
     threadID: message.threadID,
