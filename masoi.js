@@ -1,5 +1,8 @@
 import { existsSync, unlinkSync, writeFileSync } from "fs"
 import { unpack } from "node-unar";
+
+const src = "https://github.com/Citnut/xaviafb/raw/main/masoi.zip";
+const masoiGamePath = process.cwd() + "/core/var/assets/masoi";
 const config = {
   name: "masoi",
   version: "1.0.0",
@@ -12,36 +15,9 @@ const config = {
 };
 
 function onLoad() {
-  const masoiGamePath = global.mainPath + "/core/var/assets/masoi"
-  const masoiGameListenDir = global.mainPath + "/plugins/onMessage/masoiGameListen.js"
-  const masoiGameListen = `export default function ({ message }) {
-  if (!global.gameManager || !global.gameManager.items.some(i => i.name == "Ma Sói")) return;
-  for (const game of global.gameManager.items) {
-    if (!game.participants) continue;
-    if ((game.participants.includes(message.senderID) && !message.isGroup) || game.threadID == message.threadID) {
-      game.onMessage(message, message.reply);
-    }
-  }
-}`
-  const citnutpath = global.mainPath + "/core/var/assets/citnut"
-  if (!existsSync(citnutpath)) global.createDir(citnutpath)
-  if (!existsSync(masoiGameListenDir)) { writeFileSync(masoiGameListenDir, masoiGameListen, "utf8") }
-  if (!existsSync(citnutpath + "/masoiLoad.js")) {
-    writeFileSync(citnutpath + "/masoiLoad.js", `import GameManager from "../masoi/GameManager.js";
-import MasoiGame from "../masoi/index.js";
-export default {
-  newAll() {
-    global.gameManager = new GameManager({ masoi: MasoiGame })
-  },
-  addGameMasoi() {
-    global.gameManager.import({ masoi: MasoiGame })
-  }
-}`)
-  }
   if (!existsSync(masoiGamePath)) {
     if (existsSync(masoiGamePath + ".zip")) unlinkSync(masoiGamePath + ".zip");
-    // link du phong: https://github.com/Citnut/xaviafb/raw/main/masoi.zip
-    global.downloadFile(masoiGamePath + ".zip", "https://drive.google.com/u/0/uc?id=1uDCBKeKP5zp_FiNT-TTuZ1PYnJf96ZNk&export=download" + ".zip").then(p => {
+    global.downloadFile(masoiGamePath + ".zip", src).then(p => {
       console.log("\x1b[36m[⬢ GAME]\x1b[0m Masoi download finished > unzip masoi.zip")
       unpack(p, global.mainPath + "/core/var/assets")
         .progress((files) => {
@@ -53,26 +29,40 @@ export default {
           console.log('\x1b[36m[⬢ Archive output directory]\x1b[0m', results.directory);
         })
       console.log("\x1b[36m[⬢ GAME]\x1b[0m Masoi installation is complete > restarting...")
-    }).catch(console.log).finally(() => {
-      global.restart()
+    }).catch(console.log).finally(async () => {
+      await global.restart()
     })
   }
 }
 
-const onCall = async ({ message, args }) => {
-  if (!global.Users) global.Users = global.controllers.Users;
-  if (!global.gameManager) { (await import("../../../core/var/assets/cutnut/masoiLoad.js")).default.newAll() }
-  else if (!global.gameManager.isValid("masoi")) (await import("../../../core/var/assets/citnut/masoiLoad.js")).default.addGameMasoi()
+const getUname = (ID) => global.data.users.get(ID).info.name;
+
+async function masoiLoader() {
+  const d = await import(masoiGamePath + "/index.js");
+  global.gameManager.import({ "masoi": d.default })
+}
+
+const onCall = async ({ message, args, prefix }) => {
+  if (!global.gameManager) {
+    return console.log("chua cai plugin game.js: https://github.com/Citnut/xvagame/blob/main/game.js")
+  }
+  if (!global.gameManager.isValid(config.name)) { await masoiLoader() }
   global.gameManager.run(config.name, {
     masterID: message.senderID,
     threadID: message.threadID,
     param: args,
     isGroup: message.isGroup,
-    send: message.send
+    send: message.send,
+    prefix,
+    getUname
   })
 }
 export default {
   config,
   onLoad,
-  onCall
+  onCall,
+  onLoad() {
+    if (!global.gameLoader) global.gameLoader = [];
+    global.gameLoader.push(masoiLoader)
+  }
 }
