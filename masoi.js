@@ -5,7 +5,7 @@ const src = "https://github.com/Citnut/xaviafb/raw/main/masoi.zip";
 const masoiGamePath = process.cwd() + "/core/var/assets/masoi";
 const config = {
   name: "masoi",
-  version: "1.0.0",
+  version: "2.1.0",
   // hasPermssion: 0,
   credits: "D-Jukie convert Kb2aBot (Citnut mang sang Xaviabot)",
   description: "idk",
@@ -13,7 +13,10 @@ const config = {
   usage: "",
   cooldowns: 5
 };
-
+async function masoiLoader() {
+  const d = await import(masoiGamePath + "/index.js");
+  global.gameManager.import({ "masoi": d.default })
+};
 function onLoad() {
   if (!existsSync(masoiGamePath)) {
     if (existsSync(masoiGamePath + ".zip")) unlinkSync(masoiGamePath + ".zip");
@@ -32,21 +35,20 @@ function onLoad() {
     }).catch(console.log).finally(async () => {
       await global.restart()
     })
+  } else {
+    if (!global.gameLoader) global.gameLoader = [];
+    global.gameLoader.push(masoiLoader)
   }
 }
 
 const getUname = (ID) => global.data.users.get(ID).info.name;
-
-async function masoiLoader() {
-  const d = await import(masoiGamePath + "/index.js");
-  global.gameManager.import({ "masoi": d.default })
-}
 
 const onCall = async ({ message, args, prefix }) => {
   if (!global.gameManager) {
     return console.log("chua cai plugin game.js: https://github.com/Citnut/xvagame/blob/main/game.js")
   }
   if (!global.gameManager.isValid(config.name)) { await masoiLoader() }
+  if (!message.isGroup) return;
   global.gameManager.run(config.name, {
     masterID: message.senderID,
     threadID: message.threadID,
@@ -60,9 +62,5 @@ const onCall = async ({ message, args, prefix }) => {
 export default {
   config,
   onLoad,
-  onCall,
-  onLoad() {
-    if (!global.gameLoader) global.gameLoader = [];
-    global.gameLoader.push(masoiLoader)
-  }
+  onCall
 }
