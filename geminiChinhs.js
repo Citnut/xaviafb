@@ -4,7 +4,7 @@ const geminikey = ""
 const geminiAutoPath = "/onMessage/geminiAuto.js"
 const ea = "your thread is not a group!"
 const AI = new GoogleGenerativeAI(process.env.GEMINIKEY || geminikey)
-const model = AI.getGenerativeModel({ model: "gemini-1.5-pro" })
+const model = AI.getGenerativeModel({ model: "gemini-pro" })
 
 const config = {
   name: "gemini",
@@ -50,6 +50,30 @@ async function onCall({ message, args, getLang, extra, data, userPermissions, pr
     await message.reply(result)
   }
 }
+
+async function getText(promt, uID) {
+  let result = 'err...';
+  if (global.geminiAuto.history[uID]) {
+    if (global.geminiAuto.history[uID][0] && global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].chat) {
+      result = (await global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].chat.sendMessage(promt)).response.text();
+      if (!result) {
+        global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].chat = global.geminiAuto.model.startChat({
+          history: global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].history,
+          generationConfig: {
+            maxOutputTokens: 1000,
+          },
+        });
+        result = (await global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].chat.sendMessage(promt)).response.text();
+      } else {
+        global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].history = [global.geminiAuto.newHistory("user", promt), global.geminiAuto.newHistory("model", result)];
+      }
+      return result;
+    }
+  }
+  result = (await global.geminiAuto.model.generateContent(promt)).response.text();
+  return result;
+};
+global.geminiGetText = getText;
 /**
  * @type {TOnLoadCommand}
  */
@@ -65,30 +89,7 @@ function onLoad() {
     }
   }
   if (!existsSync(global.pluginsPath + geminiAutoPath)) {
-    writeFileSync(global.pluginsPath + geminiAutoPath, `async function getText(promt, uID) {
-          let result = 'err...';
-          if (global.geminiAuto.history[uID]) {
-            if (global.geminiAuto.history[uID][0] && global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].chat) {
-              result = (await global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].chat.sendMessage(promt)).response.text();
-              if (!result) {
-                global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].chat = global.geminiAuto.model.startChat({
-                  history: global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].history,
-                  generationConfig: {
-                    maxOutputTokens: 1000,
-                  },
-                });
-                result = (await global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].chat.sendMessage(promt)).response.text();
-              } else {
-                global.geminiAuto.history[uID][1][global.geminiAuto.history[uID][2]].history = [global.geminiAuto.newHistory("user", promt), global.geminiAuto.newHistory("model", result)];
-              }
-              return result;
-            }
-          }
-          result = (await global.geminiAuto.model.generateContent(promt)).response.text();
-          return result;
-        };
-        global.geminiGetText = getText;
-        export default async function ({ message, args, getLang, extra, data, userPermissions, prefix }) {
+    writeFileSync(global.pluginsPath + geminiAutoPath, `export default async function ({ message, args, getLang, extra, data, userPermissions, prefix }) {
           if (((message.senderID == global.botID) || message.body.startsWith(prefix)) || (global.geminiAuto.regExp.test(message.body) || message.body.startsWith("/"))) return;
           let text = '';
           if (global.geminiAuto.aID[message.threadID]) {
